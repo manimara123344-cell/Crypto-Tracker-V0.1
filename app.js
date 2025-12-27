@@ -19,29 +19,43 @@ const chatInput = document.getElementById('chat-input');
 const sendBtn = document.getElementById('send-btn');
 
 /**
+ * Helper to fetch data via proxy
+ */
+async function fetchProxy(url, headers = {}) {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&headers=${JSON.stringify(headers)}`;
+    const response = await fetch(proxyUrl);
+    const result = await response.json();
+    if (!result.contents) throw new Error("Proxy error");
+    return JSON.parse(result.contents);
+}
+
+/**
  * Fetch and Render Market Data
  */
 async function updateMarketData() {
+    let btcPriceInr = null;
+    let btcPriceUsd = null;
+
+    // 1. Fetch CMC Data (Market Overview)
     try {
-        // 1. Fetch CMC Data (Using a proxy for local browser compatibility)
         const coinsStr = CONFIG.coins.join(',');
-        const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coinsStr}&convert=${CONFIG.currency}`;
-        
-        // We use allorigins as a simple proxy to avoid CORS blocks in the browser
-        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(cmcUrl)}&headers=${JSON.stringify({"X-CMC_PRO_API_KEY": CONFIG.apiKey})}`);
-        const result = await response.json();
-        
-        if (!result.contents) throw new Error("Proxy error");
-        const data = JSON.parse(result.contents).data;
+        const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coinsStr}&convert=${CONFIG.currency},USD`;
+        const dataRes = await fetchProxy(cmcUrl, { "X-CMC_PRO_API_KEY": CONFIG.apiKey });
+        const data = dataRes.data;
 
         marketList.innerHTML = '';
         CONFIG.coins.forEach(symbol => {
             const coin = data[symbol];
             if (coin) {
-                const quote = coin.quote[CONFIG.currency];
-                const price = quote.price;
-                const change = quote.percent_change_24h;
-                
+                const quoteInr = coin.quote[CONFIG.currency];
+                const price = quoteInr.price;
+                const change = quoteInr.percent_change_24h;
+
+                if (symbol === 'BTC') {
+                    btcPriceInr = price;
+                    btcPriceUsd = coin.quote.USD.price;
+                }
+
                 const row = document.createElement('div');
                 row.className = 'coin-row';
                 row.innerHTML = `
@@ -51,50 +65,58 @@ async function updateMarketData() {
                             ${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%
                         </span>
                     </div>
-                    <span class="coin-price">₹${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    <span class="coin-price">₹${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 `;
                 marketList.appendChild(row);
             }
         });
+    } catch (error) {
+        console.error("CMC Error:", error);
+        marketList.innerHTML = '<div class="coin-row"><span class="change-down">Market Sync Error</span></div>';
+    }
 
-        // 2. Fetch Fear & Greed
-        const fngRes = await fetch('https://api.alternative.me/fng/?limit=1');
-        const fngData = await fngRes.json();
+    // 2. Fetch Fear & Greed
+    try {
+        const fngData = await fetchProxy('https://api.alternative.me/fng/?limit=1');
         const fng = fngData.data[0];
         fngStatus.innerText = `${fng.value} (${fng.value_classification})`;
-        
+
         const val = parseInt(fng.value);
         if (val >= 75) fngCircle.style.background = '#00ff87';
         else if (val >= 50) fngCircle.style.background = '#a2ff00';
         else if (val >= 25) fngCircle.style.background = '#ff9d00';
         else fngCircle.style.background = '#ff4b2b';
+    } catch (error) {
+        fngStatus.innerText = "Mood Error";
+    }
 
-        // 3. Bitcoiva
-        const bitRes = await fetch('https://api.bitcoiva.com/endPoint2/BDX_INR');
-        const bitData = await bitRes.json();
+    // 3. Bitcoiva
+    try {
+        const bitData = await fetchProxy('https://api.bitcoiva.com/endPoint2/BDX_INR');
         const bPrice = bitData.message.BDX_INR.last;
-        priceBitcoiva.innerText = `₹${bPrice}`;
+        priceBitcoiva.innerText = bPrice ? `₹${bPrice}` : "₹ --";
+    } catch (error) {
+        priceBitcoiva.innerText = "Sync Error";
+    }
 
-        // 4. KuCoin Proxy
-        const kuRes = await fetch('https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=BDX-USDT');
-        const kuData = await kuRes.json();
+    // 4. KuCoin Proxy
+    try {
+        const kuData = await fetchProxy('https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=BDX-USDT');
         const bdxUsdt = parseFloat(kuData.data.price);
-        
-        let inrRate = 89.5; // fallback
-        if (data.BTC) {
-            // Estimate INR rate from BTC/INR and BTC/USD
-            // We'd need BTC/USD for most accurate rate, but we can assume a rate or fetch it.
-            // Simplified: use a fixed rate or derived from config if available.
-            inrRate = 90.0; 
+
+        // Calculate dynamic INR rate
+        let inrRate = 90; // smart fallback
+        if (btcPriceInr && btcPriceUsd) {
+            inrRate = btcPriceInr / btcPriceUsd;
         }
-        
+
         const bdxInr = (bdxUsdt * inrRate).toFixed(2);
         priceKucoin.innerText = `₹${parseFloat(bdxInr).toLocaleString()}`;
-
-        lastSyncLabel.innerText = new Date().toLocaleTimeString();
     } catch (error) {
-        console.error("Sync Error:", error);
+        priceKucoin.innerText = "Sync Error";
     }
+
+    lastSyncLabel.innerText = new Date().toLocaleTimeString();
 }
 
 /**
@@ -106,7 +128,7 @@ async function askAI() {
 
     appendMessage('user', query);
     chatInput.value = '';
-    
+
     const loadingMsg = appendMessage('ai', 'Thinking...');
 
     try {
@@ -125,7 +147,7 @@ async function askAI() {
 
         const result = await response.json();
         const aiText = result.candidates[0].content.parts[0].text;
-        
+
         loadingMsg.innerText = aiText;
     } catch (error) {
         loadingMsg.innerText = "Error connecting to AI. Please check your key.";
