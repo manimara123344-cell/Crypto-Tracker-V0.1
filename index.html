@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Tracker v3.1 Mobile</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Crypto Insight</h1>
+        </header>
+
+        <!-- Market Overview Card -->
+        <section class="glass-card">
+            <div class="insight-title">Market Overview</div>
+            <div id="market-list" class="market-grid">
+                <div class="coin-row">
+                    <span class="text-muted">Loading data...</span>
+                </div>
+            </div>
+            
+            <div class="fng-container">
+                <div class="fng-meta">
+                    <span class="fng-label">Market Mood</span>
+                    <span id="fng-status" class="fng-value">--</span>
+                </div>
+                <div id="fng-circle" style="width: 10px; height: 10px; border-radius: 50%; background: gray;"></div>
+            </div>
+        </section>
+
+        <!-- Beldex Insight Card -->
+        <section class="glass-card insight-card">
+            <div class="insight-title">Beldex Expert (BDX)</div>
+            <div class="exchange-row">
+                <span class="exchange-name">Bitcoiva</span>
+                <span id="price-bitcoiva" class="exchange-price">₹ --</span>
+            </div>
+            <div class="exchange-row">
+                <span class="exchange-name">KuCoin (Proxy)</span>
+                <span id="price-kucoin" class="exchange-price">₹ --</span>
+            </div>
+        </section>
+
+        <!-- AI Chat Card -->
+        <section class="glass-card chat-container">
+            <div class="insight-title">AI Support</div>
+            <div id="chat-history" class="chat-history">
+                <div class="message ai-message">Hello! I am your Beldex Expert. How can I help you today?</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask about Beldex..." autocomplete="off">
+                <button id="send-btn">Send</button>
+            </div>
+        </section>
+
+        <div class="footer">
+            Last synced: <span id="last-sync">--:--:--</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

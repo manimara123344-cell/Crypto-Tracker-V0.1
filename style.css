@@ -1,0 +1,256 @@
+:root {
+    --bg-color: #050505;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.125);
+    --primary-cyan: #00f2fe;
+    --primary-lime: #a2ff00;
+    --accent-orange: #ff9d00;
+    --text-white: #ffffff;
+    --text-muted: #a0a0a0;
+    --danger-red: #ff4b2b;
+    --success-green: #00ff87;
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    padding-bottom: 2rem;
+}
+
+/* Glassmorphism Container */
+.container {
+    width: 100%;
+    max-width: 480px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+header {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(to right, var(--primary-cyan), var(--primary-lime));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+/* Market Data Section */
+.market-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.coin-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.coin-row:last-child {
+    border-bottom: none;
+}
+
+.coin-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.coin-symbol {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-cyan);
+}
+
+.coin-price {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.coin-change {
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.change-up { color: var(--success-green); }
+.change-down { color: var(--danger-red); }
+
+/* Insights Section */
+.insight-card {
+    border-left: 4px solid var(--primary-lime);
+}
+
+.insight-title {
+    color: var(--primary-lime);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.exchange-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.exchange-name {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.exchange-price {
+    font-weight: 700;
+}
+
+/* Fear & Greed Index */
+.fng-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.fng-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.fng-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.fng-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* AI Chat Section */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding-right: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-cyan) transparent;
+}
+
+.chat-history::-webkit-scrollbar { width: 4px; }
+.chat-history::-webkit-scrollbar-thumb { background: var(--primary-cyan); border-radius: 10px; }
+
+.message {
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 15px;
+    max-width: 85%;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.user-message {
+    background: rgba(0, 242, 254, 0.1);
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+    margin-left: auto;
+}
+
+.ai-message {
+    background: rgba(255, 255, 255, 0.05);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    border: 1px solid rgba(162, 255, 0, 0.2);
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"] {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: var(--primary-cyan);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.footer {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
